@@ -1,107 +1,408 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Pictionary Movie Name Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- jQuery -->
+  <script 
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous">
+  </script>
+
   <style>
+    /* Basic resets */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: sans-serif;
-      margin: 20px;
+      margin: 40px auto;
+      max-width: 600px;
+      padding: 0 20px;
     }
-    input[type="text"] {
-      width: 60%;
-      max-width: 300px;
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
     }
+
+    /* Buttons */
     button {
-      margin: 5px 0;
-      padding: 8px 12px;
-      font-size: 1em;
+      background-color: #007BFF;
+      border: none;
+      color: #fff;
+      padding: 8px 14px;
+      font-size: 1rem;
+      border-radius: 4px;
       cursor: pointer;
     }
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Collapsible container */
+    .collapsible {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: left; /* left-align for form elements */
+    }
+    .hidden {
+      display: none;
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    textarea,
+    select,
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 1rem;
+      margin-bottom: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    /* Start & Generate buttons centered */
+    #startGameBtn,
+    #generateBtn {
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+
+    /* Loaded status */
+    #loadedStatus {
+      text-align: center;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Result section left-aligned */
     #result {
-      margin-top: 20px;
-      font-size: 1.1em;
-      line-height: 1.5em;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    /* Each generated movie row:
+       Use flex to align the icon and text. */
+    .selected-movie {
+      display: flex;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    /* Green “✔” button (icon) before movie name */
+    .select-movie-btn {
+      background: none;
+      border: none;
+      color: #28a745;   /* green color */
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 32px;      /* fixed width to align icons */
+      text-align: center;
+      margin-right: 8px;
+    }
+    .select-movie-btn:hover {
+      color: #218838;
+    }
+
+    /* Movie text */
+    .movie-title {
+      flex: 1; /* so it takes the remaining space */
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      body {
+        padding: 0 10px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      button {
+        width: 100%;
+      }
     }
   </style>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 </head>
 <body>
 
   <h1>Pictionary Movie Name Generator</h1>
 
-  <input 
-    type="text" 
-    id="txtUrl" 
-    placeholder="Enter the public URL to your .txt file" 
-  />
+  <!-- Start a new game (collapsible panel) -->
   <button id="startGameBtn">Start a New Game</button>
 
-  <br><br>
-  
+  <div id="optionsContainer" class="collapsible hidden">
+    <h2>Choose Your Movie Source</h2>
+
+    <!-- Radio: Preloaded -->
+    <div class="form-group">
+      <label>
+        <input type="radio" name="sourceOption" value="preloaded" checked />
+        Preloaded Games
+      </label>
+      <select id="preloadedSelect">
+        <option value="">-- Select --</option>
+        <!-- Filled via JS -->
+      </select>
+    </div>
+
+    <!-- Radio: URL -->
+    <div class="form-group">
+      <label>
+        <input type="radio" name="sourceOption" value="url" />
+        From a URL
+      </label>
+      <input 
+        type="text" 
+        id="urlInput" 
+        class="hidden" 
+        placeholder="https://example.com/movies.txt"
+      />
+    </div>
+
+    <!-- Radio: Custom -->
+    <div class="form-group">
+      <label>
+        <input type="radio" name="sourceOption" value="custom" />
+        Paste Your Own List
+      </label>
+      <textarea 
+        id="customTextArea" 
+        class="hidden" 
+        rows="5" 
+        placeholder="One movie name per line..."
+      ></textarea>
+    </div>
+
+    <!-- Number of outputs -->
+    <div class="form-group">
+      <label for="numOutput">How many movies? (0..7)</label>
+      <input 
+        type="number" 
+        id="numOutput" 
+        min="0" 
+        max="7" 
+        value="3" 
+      />
+    </div>
+
+    <button id="loadGameBtn">Load Game</button>
+  </div>
+
+  <div id="loadedStatus"></div>
   <button id="generateBtn" disabled>Generate Movie Name</button>
 
+  <!-- Generated results go here, left-aligned -->
   <div id="result"></div>
 
-  <!-- Include jQuery (lightweight version from CDN) -->
-  
   <script>
-    $(document).ready(function() {
-      let movieNames = [];
+    // Preloaded games
+    const preloadedGames = [
+      {
+        name: "100 Classic Movies",
+        url: "https://raw.githubusercontent.com/saifulislampi/movie-name-gen/main/random1.txt"
+      },
+      {
+        name: "Romantic Comedies",
+        url: "https://example.com/romcom.txt"
+      },
+      {
+        name: "Action Favorites",
+        url: "https://example.com/action.txt"
+      }
+    ];
 
-      // "Start a New Game" fetches the .txt file from the provided URL
+    let currentSourceLabel = "";
+    let movieNames = [];
+    let numOut = 3; // how many to show on each generation
+
+    $(document).ready(function() {
+      // 1. Populate the preloaded dropdown
+      preloadedGames.forEach(game => {
+        $("#preloadedSelect").append(
+          `<option value="${game.url}">${game.name}</option>`
+        );
+      });
+
+      // 2. Toggle options panel on "Start a New Game"
       $("#startGameBtn").on("click", function() {
-        const url = $("#txtUrl").val().trim();
-        if (!url) {
-          alert("Please enter a valid URL for the .txt file.");
+        $("#optionsContainer").toggleClass("hidden");
+      });
+
+      // 3. Show/hide fields based on selected radio
+      $("input[name='sourceOption']").on("change", function() {
+        const val = $(this).val();
+        $("#preloadedSelect").addClass("hidden");
+        $("#urlInput").addClass("hidden");
+        $("#customTextArea").addClass("hidden");
+
+        if (val === "preloaded") {
+          $("#preloadedSelect").removeClass("hidden");
+        } else if (val === "url") {
+          $("#urlInput").removeClass("hidden");
+        } else if (val === "custom") {
+          $("#customTextArea").removeClass("hidden");
+        }
+      });
+
+      // 4. Load the chosen source when "Load Game" is clicked
+      $("#loadGameBtn").on("click", function() {
+        const sourceOption = $("input[name='sourceOption']:checked").val();
+        numOut = parseInt($("#numOutput").val(), 10) || 3;
+        if (numOut < 0 || numOut > 7) {
+          alert("Please enter a number between 0 and 7.");
           return;
         }
 
-        // Fetch the .txt file using jQuery's AJAX
+        if (sourceOption === "preloaded") {
+          const selectedUrl = $("#preloadedSelect").val().trim();
+          const selectedLabel = $("#preloadedSelect option:selected").text();
+          if (!selectedUrl) {
+            alert("Please select a preloaded game.");
+            return;
+          }
+          currentSourceLabel = `Preloaded: ${selectedLabel}`;
+          loadMovieList(selectedUrl);
+        }
+        else if (sourceOption === "url") {
+          const customUrl = $("#urlInput").val().trim();
+          if (!customUrl) {
+            alert("Please enter a valid URL.");
+            return;
+          }
+          currentSourceLabel = `Custom URL: ${customUrl}`;
+          loadMovieList(customUrl);
+        }
+        else if (sourceOption === "custom") {
+          const textVal = $("#customTextArea").val().trim();
+          if (!textVal) {
+            alert("Please paste some movie names first.");
+            return;
+          }
+          movieNames = parseTextIntoArray(textVal);
+          $("#optionsContainer").toggleClass("hidden");
+          $("#generateBtn").prop("disabled", false);
+          currentSourceLabel = "Custom input";
+          updateLoadedStatus(); // initially show how many items were loaded
+          alert(`Loaded ${movieNames.length} custom movie names!`);
+        }
+      });
+
+      // 5. "Generate" shows random movies but does NOT remove them from movieNames
+      $("#generateBtn").on("click", function() {
+        if (movieNames.length === 0) {
+          alert("No movies loaded or all have been selected. Start a new game to reload.");
+          return;
+        }
+
+        const picks = [];
+        for (let i = 0; i < numOut; i++) {
+          if (movieNames.length === 0) break;
+          const randIndex = Math.floor(Math.random() * movieNames.length);
+          picks.push(movieNames[randIndex]);
+        }
+
+        // Build HTML for the chosen movies, each with a green “✔” icon
+        // Clicking the icon will "select" that movie and remove it from the array
+        if (picks.length > 0) {
+          const html = picks.map(m => `
+            <div class="selected-movie">
+              <button class="select-movie-btn" data-movie="${escapeHtml(m)}" title="Select this movie">✔</button>
+              <span class="movie-title">${escapeHtml(m)}</span>
+            </div>
+          `).join("");
+          $("#result").html(html);
+        } else {
+          $("#result").html("No more movies to show!");
+        }
+        // We do NOT call updateLoadedStatus here,
+        // because the array hasn't changed yet.
+      });
+
+      // 6. Clicking "✔" to select the movie => remove from array + update status
+      $(document).on("click", ".select-movie-btn", function() {
+        const movieToSelect = $(this).data("movie"); // the movie text
+        const idx = movieNames.indexOf(movieToSelect);
+        if (idx !== -1) {
+          // remove from the global array
+          movieNames.splice(idx, 1);
+        }
+
+        // remove from the displayed list
+        $(this).closest(".selected-movie").remove();
+
+        // now that the array actually changed, update loaded status
+        updateLoadedStatus();
+      });
+
+      // 7. AJAX to fetch .txt
+      function loadMovieList(url) {
         $.ajax({
           url: url,
           method: "GET",
           dataType: "text"
         })
         .done(function(data) {
-          // Split the text into lines and trim them
-          movieNames = data
-            .split("\n")
-            .map(line => line.trim())
-            .filter(line => line !== "");
-
-          if (movieNames.length === 0) {
-            alert("The .txt file seems to be empty or not formatted correctly.");
+          const list = parseTextIntoArray(data);
+          if (list.length === 0) {
+            alert("The .txt file is empty or not formatted correctly.");
             return;
           }
-
-          // Enable the "Generate Movie Name" button
+          movieNames = list;
+          $("#optionsContainer").toggleClass("hidden");
           $("#generateBtn").prop("disabled", false);
-          alert("Movie list loaded successfully!");
+          updateLoadedStatus(); // show how many items loaded
+          alert(`Loaded ${list.length} movies from ${url}`);
         })
         .fail(function(err) {
           alert("Could not fetch the .txt file. Check the URL and CORS settings.");
           console.error(err);
         });
-      });
+      }
 
-      // "Generate Movie Name" picks 3 random titles from the loaded list
-      $("#generateBtn").on("click", function() {
-        if (movieNames.length === 0) {
-          alert("No movie names available. Please load from a .txt file first.");
-          return;
-        }
+      // Helper: convert multiline text -> array
+      function parseTextIntoArray(text) {
+        return text
+          .split("\n")
+          .map(line => line.trim())
+          .filter(line => line !== "");
+      }
 
-        const selectedMovies = [];
-        for (let i = 0; i < 3; i++) {
-          const randomIndex = Math.floor(Math.random() * movieNames.length);
-          selectedMovies.push(movieNames[randomIndex]);
-        }
+      // Helper: update "Currently loaded: ___ (N items remaining)"
+      function updateLoadedStatus() {
+        $("#loadedStatus").text(
+          `Currently loaded: ${currentSourceLabel} (${movieNames.length} items remaining)`
+        );
+      }
 
-        // Display the 3 random movie titles
-        $("#result").html(selectedMovies.join("<br>"));
-      });
+      // Helper: basic HTML escaping
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
     });
   </script>
 </body>
