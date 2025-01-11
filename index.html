@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Pictionary Movie Name Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    input[type="text"] {
+      width: 60%;
+      max-width: 300px;
+    }
+    button {
+      margin: 5px 0;
+      padding: 8px 12px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.1em;
+      line-height: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Pictionary Movie Name Generator</h1>
+
+  <input 
+    type="text" 
+    id="txtUrl" 
+    placeholder="Enter the public URL to your .txt file" 
+  />
+  <button id="startGameBtn">Start a New Game</button>
+
+  <br><br>
+  
+  <button id="generateBtn" disabled>Generate Movie Name</button>
+
+  <div id="result"></div>
+
+  <!-- Include jQuery (lightweight version from CDN) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+          integrity="sha256-/xUj+3OJ+0k/4sYNuLo/h3S2FJp/wrAwHRg3a3Z8MXw="
+          crossorigin="anonymous">
+  </script>
+
+  <script>
+    $(document).ready(function() {
+      let movieNames = [];
+
+      // "Start a New Game" fetches the .txt file from the provided URL
+      $("#startGameBtn").on("click", function() {
+        const url = $("#txtUrl").val().trim();
+        if (!url) {
+          alert("Please enter a valid URL for the .txt file.");
+          return;
+        }
+
+        // Fetch the .txt file using jQuery's AJAX
+        $.ajax({
+          url: url,
+          method: "GET",
+          dataType: "text"
+        })
+        .done(function(data) {
+          // Split the text into lines and trim them
+          movieNames = data
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line !== "");
+
+          if (movieNames.length === 0) {
+            alert("The .txt file seems to be empty or not formatted correctly.");
+            return;
+          }
+
+          // Enable the "Generate Movie Name" button
+          $("#generateBtn").prop("disabled", false);
+          alert("Movie list loaded successfully!");
+        })
+        .fail(function(err) {
+          alert("Could not fetch the .txt file. Check the URL and CORS settings.");
+          console.error(err);
+        });
+      });
+
+      // "Generate Movie Name" picks 3 random titles from the loaded list
+      $("#generateBtn").on("click", function() {
+        if (movieNames.length === 0) {
+          alert("No movie names available. Please load from a .txt file first.");
+          return;
+        }
+
+        const selectedMovies = [];
+        for (let i = 0; i < 3; i++) {
+          const randomIndex = Math.floor(Math.random() * movieNames.length);
+          selectedMovies.push(movieNames[randomIndex]);
+        }
+
+        // Display the 3 random movie titles
+        $("#result").html(selectedMovies.join("<br>"));
+      });
+    });
+  </script>
+</body>
+</html>
