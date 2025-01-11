@@ -147,6 +147,93 @@
 
   <h1>Pictionary Movie Name Generator</h1>
 
+  <!-- Version 1: Film Reel on Left, Arrow in Middle, Easel with Scribbles on Right -->
+<div style="text-align: center; margin-bottom: 20px;">
+  <svg
+    width="180"
+    height="80"
+    viewBox="0 0 180 80"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+
+    <!-- Film Reel (left) -->
+    <g transform="translate(35,40)">
+      <!-- Outer circle -->
+      <circle 
+        cx="0" cy="0" 
+        r="15" 
+        fill="#3B82F6" 
+        stroke="#0056b3" 
+        stroke-width="2"
+      />
+      <!-- Center hole -->
+      <circle cx="0" cy="0" r="3" fill="#fff" />
+      <!-- Small reel holes -->
+      <circle cx="-7" cy="0" r="2" fill="#fff" />
+      <circle cx="7"  cy="0" r="2" fill="#fff" />
+      <circle cx="0"  cy="-7" r="2" fill="#fff" />
+      <circle cx="0"  cy="7"  r="2" fill="#fff" />
+    </g>
+
+    <!-- Arrow (center) -->
+    <!-- Pointing right from x=70 to x=100 -->
+    <g transform="translate(70,40)">
+      <!-- Shaft of the arrow -->
+      <line 
+        x1="0" y1="0" 
+        x2="25" y2="0" 
+        stroke="#555" 
+        stroke-width="3" 
+        stroke-linecap="round"
+      />
+      <!-- Arrowhead -->
+      <polygon 
+        points="25,-5 35,0 25,5" 
+        fill="#555"
+      />
+    </g>
+
+    <!-- Easel with Whiteboard (right) -->
+    <g transform="translate(110,10)">
+      <!-- Easel legs -->
+      <line
+        x1="8" y1="60"
+        x2="14" y2="10"
+        stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"
+      />
+      <line
+        x1="38" y1="60"
+        x2="32" y2="10"
+        stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"
+      />
+      <!-- Horizontal bar -->
+      <line
+        x1="10" y1="40"
+        x2="36" y2="40"
+        stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"
+      />
+      <!-- Whiteboard -->
+      <rect
+        x="8" y="8"
+        width="28" height="24"
+        fill="#fff"
+        stroke="#555" stroke-width="1"
+        rx="2" ry="2"
+      />
+      <!-- Simple scribbles on the board -->
+      <path 
+        d="M12,18 C16,20 20,16 24,18 
+           M16,23 L22,23" 
+        stroke="#999" 
+        stroke-width="1.5" 
+        fill="none"
+      />
+    </g>
+
+  </svg>
+</div>
+
+
   <!-- Start a new game (collapsible panel) -->
   <button id="startGameBtn">Start a New Game</button>
 
