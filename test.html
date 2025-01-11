@@ -1,38 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>jQuery Test</title>
+  <title>Pictionary Movie Name Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Include our custom CSS -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- jQuery (make sure the integrity and version are correct or remove them if you have issues) -->
+  <script 
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous">
+  </script>
 </head>
 <body>
 
-<h1>jQuery Test</h1>
+  <div class="container">
+    <h1>Pictionary Movie Name Generator</h1>
 
-<!-- Load jQuery first -->
-<script 
-  src="https://code.jquery.com/jquery-3.7.1.min.js"
-  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-  crossorigin="anonymous"
-></script>
+    <!-- Game selection container -->
+    <div class="game-selection">
+      <label for="preloadedGames">Preloaded Games:</label>
+      <select id="preloadedGames">
+        <option value="">-- Select a Preloaded Game --</option>
+        <!-- We will fill these options dynamically via JS based on preloadedGames array -->
+      </select>
+    </div>
 
-<!-- Our script that uses jQuery -->
-<script>
-  $(document).ready(function() {
-    console.log("jQuery version:", $.fn.jquery);
+    <div class="or-divider">OR</div>
 
-    // Simple AJAX request (to an example endpoint)
-    $.ajax({
-      url: "https://jsonplaceholder.typicode.com/posts/1",
-      type: "GET",
-      success: function(data) {
-        console.log("AJAX Success:", data);
+    <!-- Manual .txt URL input -->
+    <div class="manual-input">
+      <input 
+        type="text" 
+        id="txtUrl" 
+        placeholder="Enter the URL to your .txt file" 
+      />
+      <button id="startGameBtn">Start a New Game</button>
+    </div>
+
+    <div class="or-divider">OR</div>
+
+    <!-- Custom input area (hidden by default) -->
+    <button id="showCustomInputBtn">Use Custom Movie List</button>
+    <div id="customInputContainer" class="hidden">
+      <textarea 
+        id="customMovieInput" 
+        rows="8" 
+        placeholder="Enter one movie name per line">
+      </textarea>
+      <button id="useCustomBtn">Load Custom List</button>
+    </div>
+
+    <!-- Generate button and results -->
+    <button id="generateBtn" disabled>Generate Movie Name</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // A small JSON array for preloaded games
+    // name: a short label, url: the raw .txt link
+    const preloadedGames = [
+      {
+        name: "100 Classic Movies",
+        url: "https://raw.githubusercontent.com/saifulislampi/movie-name-gen/main/random1.txt"
       },
-      error: function(err) {
-        console.log("AJAX Error:", err);
+      {
+        name: "Romantic Comedies",
+        url: "https://example.com/romcom.txt"
+      },
+      {
+        name: "Action Favorites",
+        url: "https://example.com/action.txt"
+      }
+      // ... add more as needed
+    ];
+
+    $(document).ready(function() {
+      let movieNames = [];
+
+      // Populate the <select> with preloaded games
+      preloadedGames.forEach(game => {
+        $("#preloadedGames").append(
+          `<option value="${game.url}">${game.name}</option>`
+        );
+      });
+
+      // If a user selects a preloaded game, load it
+      $("#preloadedGames").on("change", function() {
+        const selectedUrl = $(this).val().trim();
+        if (selectedUrl) {
+          loadMovieList(selectedUrl);
+        }
+      });
+
+      // "Start a New Game" using a custom URL
+      $("#startGameBtn").on("click", function() {
+        const url = $("#txtUrl").val().trim();
+        if (!url) {
+          alert("Please enter a valid URL for the .txt file.");
+          return;
+        }
+        loadMovieList(url);
+      });
+
+      // Show/hide the custom input area
+      $("#showCustomInputBtn").on("click", function() {
+        $("#customInputContainer").toggleClass("hidden");
+      });
+
+      // Load custom list from the textarea
+      $("#useCustomBtn").on("click", function() {
+        const customInput = $("#customMovieInput").val().trim();
+        if (!customInput) {
+          alert("Please enter some movie names, one per line.");
+          return;
+        }
+        movieNames = parseTextIntoArray(customInput);
+        if (movieNames.length === 0) {
+          alert("No valid movie names found in the input.");
+          return;
+        }
+        $("#generateBtn").prop("disabled", false);
+        alert(`Loaded ${movieNames.length} custom movie names!`);
+      });
+
+      // Generate movie names
+      $("#generateBtn").on("click", function() {
+        if (movieNames.length === 0) {
+          alert("No movie names available. Please load them first.");
+          return;
+        }
+        const selectedMovies = [];
+        for (let i = 0; i < 3; i++) {
+          const randomIndex = Math.floor(Math.random() * movieNames.length);
+          selectedMovies.push(movieNames[randomIndex]);
+        }
+        $("#result").html(selectedMovies.join("<br>"));
+      });
+
+      // Utility function to load .txt files and parse them
+      function loadMovieList(url) {
+        $.ajax({
+          url: url,
+          method: "GET",
+          dataType: "text"
+        })
+        .done(function(data) {
+          const parsedList = parseTextIntoArray(data);
+          if (parsedList.length === 0) {
+            alert("The .txt file is empty or not formatted correctly.");
+            return;
+          }
+          movieNames = parsedList;
+          $("#generateBtn").prop("disabled", false);
+          alert(`Loaded ${movieNames.length} movie names from: ${url}`);
+        })
+        .fail(function(err) {
+          alert("Could not fetch the .txt file. Check the URL and CORS settings.");
+          console.error(err);
+        });
+      }
+
+      // Helper to split text into lines, trim, and filter out empties
+      function parseTextIntoArray(text) {
+        return text
+          .split("\n")
+          .map(line => line.trim())
+          .filter(line => line !== "");
       }
     });
-  });
-</script>
-
+  </script>
 </body>
 </html>
