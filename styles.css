@@ -1,0 +1,92 @@
+/* Basic resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container to center everything and add spacing */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #444;
+}
+
+/* Form-like elements styling */
+.game-selection,
+.manual-input {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+select, 
+input[type="text"] {
+  width: 100%;
+  max-width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+textarea {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+}
+
+button {
+  background-color: #007BFF;
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 1rem;
+  margin: 10px 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0056b3;
+}
+
+.or-divider {
+  margin: 10px 0;
+  color: #666;
+  font-style: italic;
+}
+
+/* The hidden class toggles visibility */
+.hidden {
+  display: none;
+}
+
+/* Display for results */
+#result {
+  margin-top: 20px;
+  font-size: 1.1em;
+  line-height: 1.5em;
+  color: #333;
+  min-height: 50px; /* just to keep space even if empty */
+}
+
+/* Responsive: ensure it looks good on smaller screens */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+  button {
+    width: 100%;
+  }
+}
