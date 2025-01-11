@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>jQuery Test</title>
+</head>
+<body>
+
+<h1>jQuery Test</h1>
+
+<!-- Load jQuery first -->
+<script 
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+  crossorigin="anonymous"
+></script>
+
+<!-- Our script that uses jQuery -->
+<script>
+  $(document).ready(function() {
+    console.log("jQuery version:", $.fn.jquery);
+
+    // Simple AJAX request (to an example endpoint)
+    $.ajax({
+      url: "https://jsonplaceholder.typicode.com/posts/1",
+      type: "GET",
+      success: function(data) {
+        console.log("AJAX Success:", data);
+      },
+      error: function(err) {
+        console.log("AJAX Error:", err);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
